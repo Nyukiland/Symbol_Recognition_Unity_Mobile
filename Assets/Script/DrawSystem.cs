@@ -53,21 +53,25 @@ public class DrawSystem : MonoBehaviour
     {
         linePos.Add(pos);
 
-        Debug.Log(Vector3.Angle(linePos[linePos.Count - 2], linePos[linePos.Count - 1])); //doing it wrong, must create a direction and compare it to a reference vector
-        Debug.Log("-----------");
-
         line.positionCount = linePos.Count;
         line.SetPositions(linePos.ToArray());
     }
 
     IEnumerator EndRecordChecking(List<Vector3> allPos)
     {
-        Vector3[] temp = allPos.ToArray();
-        temp = GetComponent<symbolRecognition>().SymplifyPoints(temp);
+        int pointCount = allPos.Count;
 
-        while (allPos.Count != temp.Length) yield return null;
+        List<Vector3> temp = new(allPos);
+        temp = GetComponent<SymbolRecognition>().SymplifyPoints(allPos);
 
-        GetComponent<symbolRecognition>().RecognitionSystem(temp);
+        Debug.Log(temp.Count + "/" + pointCount);
+
+        while (pointCount == temp.Count) yield return null;
+
+        line.positionCount = temp.Count;
+        line.SetPositions(temp.ToArray());
+
+        //GetComponent<symbolRecognition>().RecognitionSystem(temp);
 
     }
 }
