@@ -1,15 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using System;
+
+[Serializable]
+public class AllSymbol
+{
+    List<Vector3> allAngles;
+    float angleTolerance;
+    Material matToApply;
+    GameObject VFX;
+}
 
 public class SymbolRecognition : MonoBehaviour
 {
+    [Header ("Line Simplification setting (must be edited only at the beginning)")]
     [SerializeField]
     float angleDifferenceMax = 10;
 
     [SerializeField]
     float minimumDist = 0.05f;
+
+    [Space(5)]
+    [Header("recognition Property")]
+
+    List<AllSymbol> symbolList;
 
     public List<Vector3> SymplifyPoints(List<Vector3> allPoints)
     {
@@ -28,12 +43,13 @@ public class SymbolRecognition : MonoBehaviour
 
         for (int i = 0; i < allPoints.Count - 1; i ++)
         {
+            Debug.Log(Vector3.Distance(allPoints[i], allPoints[i + 1]) + " / dist");
+
             if (Vector3.Distance(allPoints[i], allPoints[i +1]) < minimumDist)
             {
                 tempList.Add(i);
             }
         }
-        Debug.Log("dist1");
 
         for (int i = 0; i < tempList.Count; i++)
         {
@@ -41,8 +57,6 @@ public class SymbolRecognition : MonoBehaviour
         }
 
         if (tempList.Count > 0) return DistCheck(allPoints);
-
-        Debug.Log("dist");
 
         return allPoints;
     }
@@ -55,14 +69,15 @@ public class SymbolRecognition : MonoBehaviour
         for (int i = 0; i < allPoints.Count - 2; i += 2)
         {
             Vector3 firstDir = allPoints[i] - allPoints[i + 1];
-            Vector3 SecondDir = allPoints[i + 1] - allPoints[i + 2];
+            Vector3 SecondDir = allPoints[i] - allPoints[i + 2];
 
-            if (Vector3.Angle(firstDir, Vector3.up) - Vector3.Angle(SecondDir, Vector3.up) < angleDifferenceMax)
+            Debug.Log(Vector3.Angle(firstDir, Vector3.up) - Vector3.Angle(SecondDir, Vector3.up) + " / angle");
+
+            if (Vector3.Angle(firstDir, SecondDir) < angleDifferenceMax)
             {
-                tempList.Add(i);
+                tempList.Add(i+1);
             }
         }
-        Debug.Log("angle1");
 
         for (int i = 0; i < tempList.Count; i++)
         {
@@ -71,9 +86,12 @@ public class SymbolRecognition : MonoBehaviour
 
         if (tempList.Count > 0) return AngleCheck(allPoints);
 
-        Debug.Log("angle");
-
         return allPoints;
+    }
+
+    public void SaveProperty()
+    {
+
     }
 
     public void RecognitionSystem(Vector3[] allPoints)

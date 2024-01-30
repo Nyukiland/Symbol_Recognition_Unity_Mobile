@@ -347,7 +347,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11903ff4f54d9214e8ab84a0c8ed940d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angleDifferenceMax: 10
+  angleDifferenceMax: 5
   minimumDist: 0.05
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
