@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 [Serializable]
 public class AllSymbol
 {
-    List<Vector3> allAngles;
-    float angleTolerance;
-    Material matToApply;
-    GameObject VFX;
+    public List<float> allAngles;
+
+    public Material matToApply;
+
+    public GameObject VFX;
 }
 
 public class SymbolRecognition : MonoBehaviour
@@ -25,6 +27,8 @@ public class SymbolRecognition : MonoBehaviour
     [Header("recognition Property")]
 
     List<AllSymbol> symbolList;
+
+    SymbolStorage DataBase;
 
     public List<Vector3> SymplifyPoints(List<Vector3> allPoints)
     {
@@ -89,9 +93,19 @@ public class SymbolRecognition : MonoBehaviour
         return allPoints;
     }
 
-    public void SaveProperty()
+    public void SaveProperty(List<Vector3> points)
     {
+        AllSymbol newEntry = new();
 
+        Vector3 baseDir = points.Last() - points.First();
+
+        for(int i = 0; i < points.Count - 1; i++)
+        {
+            Vector3 currentDir = points[i + 1] - points[i];
+            newEntry.allAngles.Add(Vector3.Angle(currentDir, baseDir));
+        }
+
+        symbolList.Add(newEntry);
     }
 
     public void RecognitionSystem(Vector3[] allPoints)
@@ -100,5 +114,18 @@ public class SymbolRecognition : MonoBehaviour
         //compare one by one the points with the points of the database and narrow it down
 
         //need to do a function to record symbol
+    }
+
+    private void OnApplicationQuit()
+    {
+        DataBase.symbolDataBase.Clear();
+
+        for (int i = 0; i < symbolList.Count; i++)
+        {
+            DataBase.symbolDataBase.Add(new());
+            DataBase.symbolDataBase[i].allAngles = symbolList[i].allAngles;
+            DataBase.symbolDataBase[i].matToApply = symbolList[i].matToApply;
+            DataBase.symbolDataBase[i].VFX = symbolList[i].VFX;
+        }
     }
 }
